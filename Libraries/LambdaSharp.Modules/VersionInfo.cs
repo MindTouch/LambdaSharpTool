@@ -57,6 +57,10 @@ namespace LambdaSharp.Modules {
                 build = -1;
                 revision = -1;
             } else {
+                var versionHashArray = versionText.Split('+');
+                if (versionHashArray.Length > 1) {
+                    versionText = versionHashArray[0];
+                }
                 var version = Version.Parse(versionText);
 
                 // assign parts of the parsed version information
