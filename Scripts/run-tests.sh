@@ -33,7 +33,7 @@ if [ -z "$1" ]; then
 
     # evaluate module parameters for each test file
     find $LAMBDASHARP/Tests/ParameterFiles/ -maxdepth 1 -name *.yml \
-        | xargs -L 1 dotnet $LAMBDASHARP/src/LambdaSharp.Tool/bin/Debug/net6.0/LambdaSharp.Tool.dll util show-parameters --quiet
+        | xargs -L 1 dotnet $LAMBDASHARP/src/LambdaSharp.Tool/bin/Debug/net8.0/LambdaSharp.Tool.dll util show-parameters --quiet
 
     # delete generated output CloudFormation template files
     find $LAMBDASHARP/Tests/Modules/ -maxdepth 1 -name *.yml \
@@ -42,7 +42,7 @@ if [ -z "$1" ]; then
         | xargs -I{} rm $LAMBDASHARP/Tests/Modules/Results/{} > /dev/null 2>&1
 
     # generate CloudFormation template for each test module
-    dotnet $LAMBDASHARP/src/LambdaSharp.Tool/bin/Debug/net6.0/LambdaSharp.Tool.dll deploy \
+    dotnet $LAMBDASHARP/src/LambdaSharp.Tool/bin/Debug/net8.0/LambdaSharp.Tool.dll deploy \
         --verbose:exceptions \
         --no-beep \
         --tier Test \
