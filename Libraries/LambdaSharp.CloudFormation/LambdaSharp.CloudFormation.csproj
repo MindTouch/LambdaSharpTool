@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>LambdaSharp.CloudFormation</RootNamespace>
     <Nullable>enable</Nullable>
     <NoWarn>CS1998</NoWarn>
@@ -23,6 +23,6 @@
     <PackageTags>AWS;CloudFormation;Lambda;LambdaSharp;Serverless</PackageTags>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="AWSSDK.S3" Version="3.7.103.43" />
+    <PackageReference Include="AWSSDK.S3" Version="4.*" />
   </ItemGroup>
 </Project>

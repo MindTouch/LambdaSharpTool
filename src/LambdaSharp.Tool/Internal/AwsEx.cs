@@ -254,7 +254,7 @@ namespace LambdaSharp.Tool.Internal {
                                 //  then the root stack begins a UPDATE_COMPLETE_CLEANUP_IN_PROGRESS phase, which triggers
                                 //  UPDATE_COMPLETE again when it completes on the sub-stacks.
                                 if(!resourceFinalTimestamp.TryGetValue(evt.LogicalResourceId, out var finalTimestamp)) {
-                                    finalTimestamp = evt.Timestamp;
+                                    finalTimestamp = evt?.Timestamp ?? DateTime.MinValue;
                                     resourceFinalTimestamp[evt.LogicalResourceId] = finalTimestamp;
                                 }
 
@@ -282,7 +282,7 @@ namespace LambdaSharp.Tool.Internal {
                     var index = eventList.FindIndex(e => e.LogicalResourceId == evt.LogicalResourceId);
                     if(index < 0) {
                         eventList.Add(evt);
-                        resourceInitialTimestamp[evt.LogicalResourceId] = evt.Timestamp;
+                        resourceInitialTimestamp[evt.LogicalResourceId] = evt.Timestamp ?? DateTime.MinValue;
                     } else {
                         eventList[index] = evt;
                     }

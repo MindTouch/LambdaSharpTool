@@ -64,7 +64,7 @@ namespace LambdaSharp.CloudFormation {
                         BucketName = "lambdasharp",
                         Key = cloudFormationSpecificationKey,
                         RequestPayer = RequestPayer.Requester,
-                        ModifiedSinceDateUtc = modifiedSince
+                        ModifiedSinceDate = modifiedSince
                     });
                     log?.Invoke("downloading new CloudFormation specification");
 

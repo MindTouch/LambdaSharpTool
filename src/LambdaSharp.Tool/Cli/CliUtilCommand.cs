@@ -750,7 +750,7 @@ namespace LambdaSharp.Tool.Cli {
                     Console.Write("(*)");
                     showAsteriskExplanation = true;
                 } else {
-                    Console.Write(logStream.LastEventTimestamp.ToString("yyyy-MM-dd"));
+                    Console.Write(logStream.LastEventTimestamp.Value.ToString("yyyy-MM-dd"));
                 }
                 Console.WriteLine();
             }

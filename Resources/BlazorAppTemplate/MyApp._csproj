@@ -1,6 +1,6 @@
 <Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Deterministic>true</Deterministic>
     <RootNamespace>%%ROOTNAMESPACE%%</RootNamespace>
     <NoWarn>CS1998</NoWarn>

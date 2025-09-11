@@ -3,7 +3,7 @@
     <Error Condition="'$(LAMBDASHARP_VERSION_PREFIX)' == ''" Text="Run '$LAMBDASHARP/Scripts/set-lash-version.sh' before building." />
   </Target>
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>LambdaSharp.Tool</RootNamespace>
 
     <!-- TODO (2022-03-03, bjorg): enable nullable -->
@@ -36,16 +36,16 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Amazon.Lambda.Core" Version="2.1.0" />
-    <PackageReference Include="AWSSDK.APIGateway" Version="3.7.100.106" />
-    <PackageReference Include="AWSSDK.ApiGatewayV2" Version="3.7.100.106" />
-    <PackageReference Include="AWSSDK.CodeBuild" Version="3.7.100.105" />
-    <PackageReference Include="AWSSDK.CloudFormation" Version="3.7.104.44" />
-    <PackageReference Include="AWSSDK.CloudWatchLogs" Version="3.7.104.48" />
-    <PackageReference Include="AWSSDK.IdentityManagement" Version="3.7.100.106" />
-    <PackageReference Include="AWSSDK.KeyManagementService" Version="3.7.101.81" />
-    <PackageReference Include="AWSSDK.Lambda" Version="3.7.105.25" />
-    <PackageReference Include="AWSSDK.SecurityToken" Version="3.7.101.40" />
-    <PackageReference Include="AWSSDK.SimpleSystemsManagement" Version="3.7.104.8" />
+    <PackageReference Include="AWSSDK.APIGateway" Version="4.*" />
+    <PackageReference Include="AWSSDK.ApiGatewayV2" Version="4.*" />
+    <PackageReference Include="AWSSDK.CodeBuild" Version="4.*" />
+    <PackageReference Include="AWSSDK.CloudFormation" Version="4.*" />
+    <PackageReference Include="AWSSDK.CloudWatchLogs" Version="4.*" />
+    <PackageReference Include="AWSSDK.IdentityManagement" Version="4.*" />
+    <PackageReference Include="AWSSDK.KeyManagementService" Version="4.*" />
+    <PackageReference Include="AWSSDK.Lambda" Version="4.*" />
+    <PackageReference Include="AWSSDK.SecurityToken" Version="4.*" />
+    <PackageReference Include="AWSSDK.SimpleSystemsManagement" Version="4.*" />
     <PackageReference Include="Humidifier.Json" Version="0.3.1" />
     <PackageReference Include="Humidifier" Version="0.3.1" />
     <PackageReference Include="JsonDiffPatch" Version="2.0.61" />

@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <Deterministic>true</Deterministic>
     <RootNamespace>LambdaSharp</RootNamespace>
 
@@ -30,7 +30,7 @@
     <PackageTags>LambdaSharp;Serverless</PackageTags>
     <PackageReadmeFile>ReadMe.md</PackageReadmeFile>
   </PropertyGroup>
-  <ItemGroup Condition="'$(TargetFramework)' != 'net6.0'">
+  <ItemGroup Condition="'$(TargetFramework)' != 'net6.0' and '$(TargetFramework)' != 'net8.0'">
     <PackageReference Include="System.Text.Json" Version="6.0.2" />
     <PackageReference Include="System.Text.Encodings.Web" Version="6.0.0" />
   </ItemGroup>

@@ -89,7 +89,7 @@ namespace LambdaSharp.Tool.Cli {
                     // sub-command options
                     var namespaceOption = subCmd.Option("--namespace <NAME>", "(optional) Root namespace for project (default: same as function name)", CommandOptionType.SingleValue);
                     var directoryOption = subCmd.Option("--working-directory <PATH>", "(optional) New function project parent directory (default: current directory)", CommandOptionType.SingleValue);
-                    var frameworkOption = subCmd.Option("--framework|-f <NAME>", "(optional) Target .NET framework (default: 'net6.0')", CommandOptionType.SingleValue);
+                    var frameworkOption = subCmd.Option("--framework|-f <NAME>", "(optional) Target .NET framework", CommandOptionType.SingleValue);
                     var languageOption = subCmd.Option("--language|-l <LANGUAGE>", "(optional) Select programming language for generated code (default: csharp)", CommandOptionType.SingleValue);
                     var inputFileOption = subCmd.Option("--input <FILE>", "(optional) File path to YAML module definition (default: Module.yml)", CommandOptionType.SingleValue);
                     inputFileOption.ShowInHelpText = false;
@@ -127,7 +127,7 @@ namespace LambdaSharp.Tool.Cli {
                             settings,
                             functionName,
                             namespaceOption.Value(),
-                            frameworkOption.Value() ?? "net6.0",
+                            frameworkOption.Value() ?? "net8.0",
                             workingDirectory,
                             Path.Combine(workingDirectory, inputFileOption.Value() ?? "Module.yml"),
                             languageOption.Value() ?? "csharp",

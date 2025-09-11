@@ -156,10 +156,16 @@ namespace LambdaSharp.Tool.Cli.Tier {
                     .FirstOrDefault(parameter => parameter.ParameterKey == "LambdaSharpCoreServices")
                     ?.ParameterValue;
             }
+            var deploymentDate = DateTime.MinValue;
+            if (stack.LastUpdatedTime != null
+                && stack.CreationTime != null) {
+                deploymentDate = stack.LastUpdatedTime.Value > stack.CreationTime.Value 
+                    ? stack.LastUpdatedTime.Value : stack.CreationTime.Value;
+            }
             return new TierModuleDetails {
                 ModuleDeploymentName = stack.StackName.Substring(tierPrefix.Length),
                 StackStatus = stack.StackStatus.ToString(),
-                DeploymentDate = (stack.LastUpdatedTime > stack.CreationTime) ? stack.LastUpdatedTime : stack.CreationTime,
+                DeploymentDate = deploymentDate,
                 Stack = stack,
                 ModuleReference = GetShortModuleReference(stack),
                 CoreServices = coreServices,

@@ -1076,13 +1076,33 @@ System.Console.WriteLine($"*** PATTERN TYPE: {pattern?.GetType().FullName ?? "<n
                     break;
                 case "net6":
                 case "net6.0":
-                    if(isSelfContained) {
-                        runtime = Amazon.Lambda.Runtime.ProvidedAl2.ToString();
-                    } else if(isTopLevelMain) {
-                        runtime = Amazon.Lambda.Runtime.Dotnet6.ToString();
-                    } else {
-                        runtime = Amazon.Lambda.Runtime.Dotnet6.ToString();
-                    }
+                    if (isSelfContained)
+                        {
+                            runtime = Amazon.Lambda.Runtime.ProvidedAl2.ToString();
+                        }
+                        else if (isTopLevelMain)
+                        {
+                            runtime = Amazon.Lambda.Runtime.Dotnet6.ToString();
+                        }
+                        else
+                        {
+                            runtime = Amazon.Lambda.Runtime.Dotnet6.ToString();
+                        }
+                    break;
+                case "net8":
+                case "net8.0":
+                    if (isSelfContained)
+                        {
+                            runtime = Amazon.Lambda.Runtime.ProvidedAl2.ToString();
+                        }
+                        else if (isTopLevelMain)
+                        {
+                            runtime = Amazon.Lambda.Runtime.Dotnet8.ToString();
+                        }
+                        else
+                        {
+                            runtime = Amazon.Lambda.Runtime.Dotnet8.ToString();
+                        }
                     break;
                 default:
                     LogError($"could not determine runtime from target framework: {targetFramework}; specify 'Runtime' attribute explicitly");
