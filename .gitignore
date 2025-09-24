@@ -4,6 +4,7 @@ debug.log
 
 # IDEA
 .idea/
+*.DotSettings.user
 
 # .NET Core
 bin
