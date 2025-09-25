@@ -1,6 +1,6 @@
 # Set variables
-$env:LAMBDASHARP_VERSION_PREFIX = "0.8.4.1"
-$env:LAMBDASHARP_VERSION_SUFFIX = "net8"
+$env:LAMBDASHARP_VERSION_PREFIX = "0.8.5"
+$env:LAMBDASHARP_VERSION_SUFFIX = ""
 
 # Create full version text
 if ([string]::IsNullOrEmpty($env:LAMBDASHARP_VERSION_SUFFIX)) {
