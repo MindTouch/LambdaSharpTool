@@ -420,12 +420,19 @@ public sealed class Function : ALambdaCustomResourceFunction<RegistrationResourc
         // find or create Rollbar project
         var project = await RollbarClient.FindProjectByNameAsync(name)
             ?? await RollbarClient.CreateProjectAsync(name);
+        LogInfo($"Using Rollbar project '{project.Name}' (ID: {project.Id})");
 
-        // retrieve access token for Rollbar project
+        // retrieve or create access token for Rollbar project
         var tokens = await RollbarClient.ListProjectTokensAsync(project.Id);
         var token = tokens.FirstOrDefault(t => t.Name == "post_server_item")?.AccessToken;
         if(token == null) {
-            throw new RegistrarException("internal error: unable to retrieve token for new Rollbar project");
+            LogInfo($"Creating 'post_server_item' token for Rollbar project {project.Id}");
+            var newToken = await RollbarClient.CreateProjectTokenAsync(
+                project.Id,
+                "post_server_item",
+                new[] { "post_server_item" }
+            );
+            token = newToken.AccessToken ?? throw new RegistrarException("Missing Rollbar access token");
         }
         return (ProjectId: project.Id, ProjectAccessToken: await EncryptSecretAsync(token, CoreSecretsKey));
     }
