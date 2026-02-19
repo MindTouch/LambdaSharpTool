@@ -243,5 +243,29 @@ public class RollbarClient {
         return Deserialize<List<RollbarProjectToken>>(Serialize(result.Result));
     }
 
+    public async Task<RollbarProjectToken> CreateProjectTokenAsync(int projectId, string tokenName, string[] scopes) {
+        LogInfo($"creating rollbar project token '{tokenName}' for project {projectId} with scopes: {string.Join(", ", scopes)}");
+        var requestBody = new {
+            access_token = _accountWriteAccessToken,
+            name = tokenName,
+            scopes = scopes
+        };
+        var httpResponse = await HttpClient.SendAsync(new HttpRequestMessage {
+            RequestUri = new Uri($"https://api.rollbar.com/api/1/project/{projectId}/access_tokens"),
+            Method = HttpMethod.Post,
+            Content = new StringContent(Serialize(requestBody), Encoding.UTF8, "application/json")
+        });
+        if(!httpResponse.IsSuccessStatusCode) {
+            throw new RollbarClientException($"http operation failed: {httpResponse.StatusCode}");
+        }
+        var result = Deserialize<RollbarResponse>(await httpResponse.Content.ReadAsStringAsync());
+        if(result.Error != 0) {
+            throw new RollbarClientException($"rollbar operation failed (error {result.Error}): {result.Message}");
+        }
+        var token = Deserialize<RollbarProjectToken>(Serialize(result.Result));
+        LogInfo($"created rollbar project token '{token.Name}' (status: {token.Status}) for project {projectId}");
+        return token;
+    }
+
     private void LogInfo(string message) => _logInfo?.Invoke(message);
 }
