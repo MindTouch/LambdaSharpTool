@@ -139,10 +139,10 @@ namespace LambdaSharp.Modules {
             case "net8":
             case "net8.0":
 
-                // .NET 8 projects require 0.8.5.*
+                // .NET 8 projects require 0.8.5.* or higher
                 valid = (libraryVersion.Major == 0)
                         && (libraryVersion.Minor == 8)
-                        && (libraryVersion.Build == 5);
+                        && (libraryVersion.Build >= 5);
                 break;
             default:
                 throw new VersionInfoCompatibilityUnsupportedFrameworkException(projectFramework);
