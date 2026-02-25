@@ -273,8 +273,9 @@ public class RollbarClient {
         
         // Get all teams
         var httpResponse = await HttpClient.SendAsync(new HttpRequestMessage {
-            RequestUri = new Uri($"https://api.rollbar.com/api/1/teams?access_token={_accountReadAccessToken}"),
-            Method = HttpMethod.Get
+            RequestUri = new Uri("https://api.rollbar.com/api/1/teams?limit=100"),
+            Method = HttpMethod.Get,
+            Headers = {{ "X-Rollbar-Access-Token", _accountReadAccessToken }}
         });
         if(!httpResponse.IsSuccessStatusCode) {
             throw new RollbarClientException($"http operation failed: {httpResponse.StatusCode}");
@@ -299,8 +300,9 @@ public class RollbarClient {
         LogInfo($"assigning rollbar project {projectId} to team '{ENGINEERING_TEAM_NAME}' (ID: {teamId})");
         
         httpResponse = await HttpClient.SendAsync(new HttpRequestMessage {
-            RequestUri = new Uri($"https://api.rollbar.com/api/1/team/{teamId}/project/{projectId}?access_token={_accountWriteAccessToken}"),
-            Method = HttpMethod.Put
+            RequestUri = new Uri($"https://api.rollbar.com/api/1/team/{teamId}/project/{projectId}"),
+            Method = HttpMethod.Put,
+            Headers = {{ "X-Rollbar-Access-Token", _accountWriteAccessToken }}
         });
         if(!httpResponse.IsSuccessStatusCode) {
             throw new RollbarClientException($"http operation failed: {httpResponse.StatusCode}");

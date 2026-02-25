@@ -1,5 +1,5 @@
 # Set variables
-$env:LAMBDASHARP_VERSION_PREFIX = "0.8.6"
+$env:LAMBDASHARP_VERSION_PREFIX = "0.8.5.1"
 $env:LAMBDASHARP_VERSION_SUFFIX = ""
 
 # Create full version text
