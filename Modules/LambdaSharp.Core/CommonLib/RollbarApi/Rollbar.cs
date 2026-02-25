@@ -119,3 +119,13 @@ public class Frame {
     [JsonPropertyName("method")]
     public string? Method { get; set; }
 }
+
+public class RollbarTeam {
+
+    //--- Properties ---
+    [JsonPropertyName("id")]
+    public int Id { get; set; }
+
+    [JsonPropertyName("name")]
+    public string? Name { get; set; }
+}

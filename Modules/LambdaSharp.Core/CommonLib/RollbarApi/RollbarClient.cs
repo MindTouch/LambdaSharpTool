@@ -267,5 +267,52 @@ public class RollbarClient {
         return token;
     }
 
+    public async Task AssignProjectToEngineeringTeamAsync(int projectId) {
+        const string ENGINEERING_TEAM_NAME = "Engineering";
+        LogInfo($"finding team '{ENGINEERING_TEAM_NAME}'");
+        
+        // Get all teams
+        var httpResponse = await HttpClient.SendAsync(new HttpRequestMessage {
+            RequestUri = new Uri("https://api.rollbar.com/api/1/teams?limit=100"),
+            Method = HttpMethod.Get,
+            Headers = {{ "X-Rollbar-Access-Token", _accountReadAccessToken }}
+        });
+        if(!httpResponse.IsSuccessStatusCode) {
+            throw new RollbarClientException($"http operation failed: {httpResponse.StatusCode}");
+        }
+        var result = Deserialize<RollbarResponse>(await httpResponse.Content.ReadAsStringAsync());
+        if(result.Error != 0) {
+            throw new RollbarClientException($"rollbar operation failed (error {result.Error}): {result.Message}");
+        }
+        
+        // Parse teams and find Engineering
+        var teamsJson = Serialize(result.Result);
+        var teams = Deserialize<List<RollbarTeam>>(teamsJson);
+        var engineeringTeam = teams?.FirstOrDefault(t => 
+            t.Name?.Equals(ENGINEERING_TEAM_NAME, StringComparison.OrdinalIgnoreCase) == true
+        );
+        
+        if(engineeringTeam == null) {
+            throw new RollbarClientException($"team '{ENGINEERING_TEAM_NAME}' not found");
+        }
+        
+        var teamId = engineeringTeam.Id;
+        LogInfo($"assigning rollbar project {projectId} to team '{ENGINEERING_TEAM_NAME}' (ID: {teamId})");
+        
+        httpResponse = await HttpClient.SendAsync(new HttpRequestMessage {
+            RequestUri = new Uri($"https://api.rollbar.com/api/1/team/{teamId}/project/{projectId}"),
+            Method = HttpMethod.Put,
+            Headers = {{ "X-Rollbar-Access-Token", _accountWriteAccessToken }}
+        });
+        if(!httpResponse.IsSuccessStatusCode) {
+            throw new RollbarClientException($"http operation failed: {httpResponse.StatusCode}");
+        }
+        result = Deserialize<RollbarResponse>(await httpResponse.Content.ReadAsStringAsync());
+        if(result.Error != 0) {
+            throw new RollbarClientException($"rollbar operation failed (error {result.Error}): {result.Message}");
+        }
+        LogInfo($"assigned rollbar project {projectId} to team '{ENGINEERING_TEAM_NAME}'");
+    }
+
     private void LogInfo(string message) => _logInfo?.Invoke(message);
 }
