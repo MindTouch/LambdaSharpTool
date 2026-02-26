@@ -172,8 +172,11 @@ public class RollbarClient {
     public async Task<IEnumerable<RollbarProject>> ListAllProjectsAsync() {
         LogInfo($"list all rollbar projects");
         var httpResponse = await HttpClient.SendAsync(new HttpRequestMessage {
-            RequestUri = new Uri($"https://api.rollbar.com/api/1/projects/?access_token={_accountReadAccessToken}"),
-            Method = HttpMethod.Get
+            RequestUri = new Uri($"https://api.rollbar.com/api/1/projects/?limit=100"),
+            Method = HttpMethod.Get,
+            Headers = {
+                { "X-Rollbar-Access-Token", _accountReadAccessToken }
+            }
         });
         if(!httpResponse.IsSuccessStatusCode) {
             throw new RollbarClientException($"http operation failed: {httpResponse.StatusCode}");
@@ -199,8 +202,11 @@ public class RollbarClient {
     public async Task<RollbarProject> GetProjectAsync(int projectId) {
         LogInfo($"get rollbar project {projectId}");
         var httpResponse = await HttpClient.SendAsync(new HttpRequestMessage {
-            RequestUri = new Uri($"https://api.rollbar.com/api/1/project/{projectId}?access_token={_accountReadAccessToken}"),
-            Method = HttpMethod.Get
+            RequestUri = new Uri($"https://api.rollbar.com/api/1/project/{projectId}"),
+            Method = HttpMethod.Get,
+            Headers = {
+                { "X-Rollbar-Access-Token", _accountReadAccessToken }
+            }
         });
         if(!httpResponse.IsSuccessStatusCode) {
             throw new RollbarClientException($"http operation failed: {httpResponse.StatusCode}");
@@ -215,8 +221,11 @@ public class RollbarClient {
     public async Task DeleteProjectAsync(int projectId) {
         LogInfo($"delete rollbar project {projectId}");
         var httpResponse = await HttpClient.SendAsync(new HttpRequestMessage {
-            RequestUri = new Uri($"https://api.rollbar.com/api/1/project/{projectId}?access_token={_accountWriteAccessToken}"),
-            Method = HttpMethod.Delete
+            RequestUri = new Uri($"https://api.rollbar.com/api/1/project/{projectId}"),
+            Method = HttpMethod.Delete,
+            Headers = {
+                { "X-Rollbar-Access-Token", _accountWriteAccessToken }
+            }
         });
         if(!httpResponse.IsSuccessStatusCode) {
             throw new RollbarClientException($"http operation failed: {httpResponse.StatusCode}");
@@ -230,8 +239,11 @@ public class RollbarClient {
     public async Task<IEnumerable<RollbarProjectToken>> ListProjectTokensAsync(int projectId) {
         LogInfo($"list rollbar project tokens {projectId}");
         var httpResponse = await HttpClient.SendAsync(new HttpRequestMessage {
-            RequestUri = new Uri($"https://api.rollbar.com/api/1/project/{projectId}/access_tokens?access_token={_accountReadAccessToken}"),
-            Method = HttpMethod.Get
+            RequestUri = new Uri($"https://api.rollbar.com/api/1/project/{projectId}/access_tokens"),
+            Method = HttpMethod.Get,
+            Headers = {
+                { "X-Rollbar-Access-Token", _accountReadAccessToken }
+            }
         });
         if(!httpResponse.IsSuccessStatusCode) {
             throw new RollbarClientException($"http operation failed: {httpResponse.StatusCode}");
@@ -246,14 +258,16 @@ public class RollbarClient {
     public async Task<RollbarProjectToken> CreateProjectTokenAsync(int projectId, string tokenName, string[] scopes) {
         LogInfo($"creating rollbar project token '{tokenName}' for project {projectId} with scopes: {string.Join(", ", scopes)}");
         var requestBody = new {
-            access_token = _accountWriteAccessToken,
             name = tokenName,
             scopes = scopes
         };
         var httpResponse = await HttpClient.SendAsync(new HttpRequestMessage {
             RequestUri = new Uri($"https://api.rollbar.com/api/1/project/{projectId}/access_tokens"),
             Method = HttpMethod.Post,
-            Content = new StringContent(Serialize(requestBody), Encoding.UTF8, "application/json")
+            Content = new StringContent(Serialize(requestBody), Encoding.UTF8, "application/json"),
+            Headers = {
+                { "X-Rollbar-Access-Token", _accountWriteAccessToken }
+            }
         });
         if(!httpResponse.IsSuccessStatusCode) {
             throw new RollbarClientException($"http operation failed: {httpResponse.StatusCode}");
