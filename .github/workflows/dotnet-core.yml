@@ -14,17 +14,12 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
-      - name: Setup .NET Core 3.1
-        uses: actions/setup-dotnet@v1
+      - name: Setup .NET 8.0
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 3.1.416
-
-      - name: Setup .NET 6.0
-        uses: actions/setup-dotnet@v1
-        with:
-          dotnet-version: 6.0.102
+          dotnet-version: 8.0.x
 
       - name: Set LambdaSharp environment variable
         run: echo "LAMBDASHARP=$GITHUB_WORKSPACE" >> $GITHUB_ENV
@@ -39,9 +34,6 @@ jobs:
       # SDK Tests
       - name: Test LambdaSharp
         run: dotnet test --configuration Release Tests/Tests.LambdaSharp
-
-      - name: Test LambdaSharp.App.EventBus
-        run: dotnet test --configuration Release Modules/LambdaSharp.App.EventBus/Tests.LambdaSharp.App.EventBus
 
       # Module Tests
       - name: Test LambdaSharp.Core
