@@ -1087,9 +1087,7 @@ System.Console.WriteLine($"*** PATTERN TYPE: {pattern?.GetType().FullName ?? "<n
                 case "net8":
                 case "net8.0":
                     if(isSelfContained) {
-                        runtime = Amazon.Lambda.Runtime.ProvidedAl2.ToString();
-                    } else if(isTopLevelMain) {
-                        runtime = Amazon.Lambda.Runtime.Dotnet8.ToString();
+                        runtime = Amazon.Lambda.Runtime.ProvidedAl2023.ToString();
                     } else {
                         runtime = Amazon.Lambda.Runtime.Dotnet8.ToString();
                     }
