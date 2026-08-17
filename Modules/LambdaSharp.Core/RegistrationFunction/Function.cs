@@ -287,7 +287,16 @@ public sealed class Function : ALambdaCustomResourceFunction<RegistrationResourc
 
                 // update module record
                 LogInfo($"Updating Module: Id={properties.ModuleId}, Info={properties.GetModuleInfo()}");
-                var owner = PopulateOwnerMetaData(properties);
+                
+                // get existing owner or create new one
+                var owner = await Registrations.GetOwnerMetaDataAsync($"M:{properties.ModuleId}");
+                owner = PopulateOwnerMetaData(properties, owner);
+                if(RollbarClient.HasTokens) {
+                    var rollbarProject = await RegisterRollbarProject(properties);
+                    owner.RollbarProjectId = rollbarProject.ProjectId;
+                    owner.RollbarAccessToken = rollbarProject.ProjectAccessToken;
+                }
+
                 await Registrations.PutOwnerMetaDataAsync($"M:{properties.ModuleId}", owner);
                 return Respond(request.PhysicalResourceId);
             }
@@ -418,14 +427,28 @@ public sealed class Function : ALambdaCustomResourceFunction<RegistrationResourc
         }
 
         // find or create Rollbar project
-        var project = await RollbarClient.FindProjectByNameAsync(name)
-            ?? await RollbarClient.CreateProjectAsync(name);
+        var existingProject = await RollbarClient.FindProjectByNameAsync(name);
+        var project = existingProject ?? await RollbarClient.CreateProjectAsync(name);
+        LogInfo($"Using Rollbar project '{project.Name}' (ID: {project.Id})");
 
-        // retrieve access token for Rollbar project
+        // assign project to Engineering team.
+        try {
+            await RollbarClient.AssignProjectToEngineeringTeamAsync(project.Id);
+        } catch(Exception e) {
+            LogWarn($"Failed to assign project to Engineering team: {e.Message}");
+        }
+
+        // retrieve or create access token for Rollbar project
         var tokens = await RollbarClient.ListProjectTokensAsync(project.Id);
         var token = tokens.FirstOrDefault(t => t.Name == "post_server_item")?.AccessToken;
         if(token == null) {
-            throw new RegistrarException("internal error: unable to retrieve token for new Rollbar project");
+            LogInfo($"Creating 'post_server_item' token for Rollbar project {project.Id}");
+            var newToken = await RollbarClient.CreateProjectTokenAsync(
+                project.Id,
+                "post_server_item",
+                new[] { "post_server_item" }
+            );
+            token = newToken.AccessToken ?? throw new RegistrarException("Missing Rollbar access token");
         }
         return (ProjectId: project.Id, ProjectAccessToken: await EncryptSecretAsync(token, CoreSecretsKey));
     }

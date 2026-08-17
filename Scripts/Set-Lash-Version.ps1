@@ -1,0 +1,10 @@
+# Set variables
+$env:LAMBDASHARP_VERSION_PREFIX = "0.8.5.1"
+$env:LAMBDASHARP_VERSION_SUFFIX = ""
+
+# Create full version text
+if ([string]::IsNullOrEmpty($env:LAMBDASHARP_VERSION_SUFFIX)) {
+    $env:LAMBDASHARP_VERSION = $env:LAMBDASHARP_VERSION_PREFIX
+} else {
+    $env:LAMBDASHARP_VERSION = "$($env:LAMBDASHARP_VERSION_PREFIX)-$($env:LAMBDASHARP_VERSION_SUFFIX)"
+}

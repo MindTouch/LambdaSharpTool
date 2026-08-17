@@ -68,7 +68,7 @@ namespace LambdaSharp.Modules {
 
             // NOTE (2022-03-04, bjorg): ReadyToRun is supported as of .NET Core 3.0
             => framework switch {
-                "netcoreapp3.0" or "netcoreapp3.1" or "net5.0" or "net6.0" => true,
+                "netcoreapp3.0" or "netcoreapp3.1" or "net5.0" or "net6.0" or "net8.0" => true,
                 _ => false
             };
 
@@ -130,11 +130,19 @@ namespace LambdaSharp.Modules {
                 break;
             case "net6":
             case "net6.0":
-
+                
                 // .NET 6 projects require 0.8.4.*
                 valid = (libraryVersion.Major == 0)
                     && (libraryVersion.Minor == 8)
                     && (libraryVersion.Build == 4);
+                break;
+            case "net8":
+            case "net8.0":
+
+                // .NET 8 projects require 0.8.5.* or higher
+                valid = (libraryVersion.Major == 0)
+                        && (libraryVersion.Minor == 8)
+                        && (libraryVersion.Build >= 5);
                 break;
             default:
                 throw new VersionInfoCompatibilityUnsupportedFrameworkException(projectFramework);

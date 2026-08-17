@@ -1,9 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <RootNamespace>LambdaSharp.Modules</RootNamespace>
     <Nullable>enable</Nullable>
-    <NoWarn>CS1998</NoWarn>
+    <NoWarn>CS1998;SYSLIB0051</NoWarn>
     <ImplicitUsings>enable</ImplicitUsings>
     <WarningLevel>9999</WarningLevel>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>

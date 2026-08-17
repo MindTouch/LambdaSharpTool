@@ -2,6 +2,10 @@
 .vscode
 debug.log
 
+# IDEA
+.idea/
+*.DotSettings.user
+
 # .NET Core
 bin
 obj
@@ -19,3 +23,4 @@ params.yml
 appsettings.Development.json
 src/CloudFormationResourceSpecification.json
 tmp/
+*~
