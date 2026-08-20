@@ -25,6 +25,21 @@ jobs:
         with:
           dotnet-version: 8.0.x
 
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Login to CodeArtifact (NuGet restore)
+        run: |
+          aws codeartifact login \
+            --tool dotnet \
+            --repository cxe-nuget \
+            --domain mindtouch-deki \
+            --domain-owner 366391106850 \
+            --region us-east-1
+
       - name: Set LambdaSharp environment variable
         run: echo "LAMBDASHARP=$GITHUB_WORKSPACE" >> $GITHUB_ENV
 
