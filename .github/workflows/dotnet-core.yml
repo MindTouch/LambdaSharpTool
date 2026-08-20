@@ -10,8 +10,12 @@ on:
     branches:
       - main
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -24,17 +28,133 @@ jobs:
       - name: Set LambdaSharp environment variable
         run: echo "LAMBDASHARP=$GITHUB_WORKSPACE" >> $GITHUB_ENV
 
-      # CLI Tests
       - name: Test LambdaSharp.CloudFormation
         run: dotnet test --configuration Release Tests/Tests.LambdaSharp.CloudFormation
 
       - name: Test LambdaSharp.Modules
         run: dotnet test --configuration Release Tests/Tests.LambdaSharp.Modules
 
-      # SDK Tests
       - name: Test LambdaSharp
         run: dotnet test --configuration Release Tests/Tests.LambdaSharp
 
-      # Module Tests
       - name: Test LambdaSharp.Core
         run: dotnet test --configuration Release Modules/LambdaSharp.Core/Tests/Tests.ProcessLogEventsTests
+
+  publish:
+    needs: build-and-test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET 8.0
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Set environment variables
+        run: |
+          echo "LAMBDASHARP=$GITHUB_WORKSPACE" >> $GITHUB_ENV
+          source $GITHUB_WORKSPACE/Scripts/set-lash-version.sh
+          echo "LAMBDASHARP_VERSION=$LAMBDASHARP_VERSION" >> $GITHUB_ENV
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Login to CodeArtifact
+        run: |
+          aws codeartifact login \
+            --tool dotnet \
+            --repository cxe-nuget \
+            --domain mindtouch-deki \
+            --domain-owner 366391106850 \
+            --region us-east-1
+
+      - name: Check if version already published
+        id: version-check
+        run: |
+          echo "Checking if LambdaSharp.Tool $LAMBDASHARP_VERSION already exists in CodeArtifact..."
+          EXISTING=$(aws codeartifact list-package-versions \
+            --domain mindtouch-deki \
+            --domain-owner 366391106850 \
+            --repository cxe-nuget \
+            --format nuget \
+            --package LambdaSharp.Tool \
+            --region us-east-1 \
+            --query "versions[?version=='$LAMBDASHARP_VERSION'].version" \
+            --output text 2>/dev/null || echo "")
+
+          if [ -n "$EXISTING" ] && [ "$EXISTING" != "None" ]; then
+            echo "::warning::Version $LAMBDASHARP_VERSION already exists in CodeArtifact — skipping publish. Bump version in Scripts/set-lash-version.sh to publish new artifacts."
+            echo "already_published=true" >> $GITHUB_OUTPUT
+          else
+            echo "Version $LAMBDASHARP_VERSION not found — will publish."
+            echo "already_published=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Clean previous builds
+        if: steps.version-check.outputs.already_published == 'false'
+        run: find "$LAMBDASHARP" -name 'bin' -or -name 'obj' | xargs rm -rf
+
+      - name: Build and pack SDK libraries
+        if: steps.version-check.outputs.already_published == 'false'
+        run: |
+          SDK_PROJECTS=(
+            "LambdaSharp"
+            "LambdaSharp.ApiGateway"
+            "LambdaSharp.App"
+            "LambdaSharp.CustomResource"
+            "LambdaSharp.EventBridge"
+            "LambdaSharp.Finalizer"
+            "LambdaSharp.Logging"
+            "LambdaSharp.Schedule"
+            "LambdaSharp.Serialization.NewtonsoftJson"
+            "LambdaSharp.SimpleNotificationService"
+            "LambdaSharp.SimpleQueueService"
+            "LambdaSharp.Slack"
+          )
+          for proj in "${SDK_PROJECTS[@]}"; do
+            echo "::group::Pack $proj"
+            cd "$LAMBDASHARP/src/$proj"
+            dotnet pack --configuration Release
+            echo "::endgroup::"
+          done
+
+      - name: Build and pack LambdaSharp.Tool
+        if: steps.version-check.outputs.already_published == 'false'
+        run: |
+          cd "$LAMBDASHARP/src/LambdaSharp.Tool"
+          dotnet publish --configuration Release
+          dotnet pack --configuration Release --output ./
+
+      - name: Push NuGet packages to CodeArtifact
+        if: steps.version-check.outputs.already_published == 'false'
+        run: |
+          echo "Publishing NuGet packages (version: $LAMBDASHARP_VERSION)"
+          find "$LAMBDASHARP/src" -path "*/bin/Release/*.nupkg" -print0 | while IFS= read -r -d '' pkg; do
+            echo "  Pushing: $(basename "$pkg")"
+            dotnet nuget push "$pkg" --source "mindtouch-deki/cxe-nuget"
+          done
+          for pkg in "$LAMBDASHARP/src/LambdaSharp.Tool/"*.nupkg; do
+            if [ -f "$pkg" ]; then
+              echo "  Pushing: $(basename "$pkg")"
+              dotnet nuget push "$pkg" --source "mindtouch-deki/cxe-nuget"
+            fi
+          done
+
+      - name: Verify published version
+        if: steps.version-check.outputs.already_published == 'false'
+        run: |
+          echo "Verifying LambdaSharp.Tool $LAMBDASHARP_VERSION in CodeArtifact..."
+          aws codeartifact list-package-versions \
+            --domain mindtouch-deki \
+            --domain-owner 366391106850 \
+            --repository cxe-nuget \
+            --format nuget \
+            --package LambdaSharp.Tool \
+            --region us-east-1 \
+            --query "versions[?version=='$LAMBDASHARP_VERSION'].{version:version,status:status}" \
+            --output table
